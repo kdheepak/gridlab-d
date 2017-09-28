@@ -344,23 +344,23 @@ extern "C" int job(int argc, char *argv[])
 
 	char mailto[1024];
 	global_getvar("mailto",mailto,sizeof(mailto));
-	
+
 	unsigned int count = (int)process_dir(global_workdir);
 	if ( count==0 )
 	{
 		output_warning("no models found to process job in workdir '%s'", global_workdir);
 		exit(XC_RUNERR);
 	}
-	
+
 	unsigned int n_procs = global_threadcount;
 	if ( n_procs==0 ) n_procs = processor_count();
 	pthread_t *pid = new pthread_t[n_procs];
 	output_debug("starting job with cmdargs '%s' using %d threads", job_cmdargs, n_procs);
-	for ( i=0 ; i<min(count,n_procs) ; i++ )
+	for ( i=0 ; i<fmin(count,n_procs) ; i++ )
 		pthread_create(&pid[i],NULL,run_job_proc,(void*)i);
 	void *rc;
 	output_debug("begin waiting process");
-	for ( i=0 ; i<min(count,n_procs) ; i++ )
+	for ( i=0 ; i<fmin(count,n_procs) ; i++ )
 	{
 		pthread_join(pid[i],&rc);
 		output_debug("process %d done", i);
